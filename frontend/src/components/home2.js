@@ -40,7 +40,10 @@ function home(){
                     Вопрос только в том, готовы ли вы к этому?
                 </h3>
                 
-                    <button className="orange-button faq-btn opacity100">Да! Зарегистрироваться <img src={IMAGES.add_person_icon}/></button>
+                    <button className="orange-button faq-btn opacity100" onClick={()=>{
+                                window.location.href='register'
+                    }}>Да! Зарегистрироваться <img src={IMAGES.add_person_icon} 
+                /></button>
                 
 
             </div>

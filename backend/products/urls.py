@@ -10,5 +10,6 @@ urlpatterns = [
     path('<str:cat>/',views.get_by_category),
     path('token-auth/', views.CustomAuthToken.as_view()),
     path('register',views.register_user),
+    path('user-info',views.profile_user)
 
 ]

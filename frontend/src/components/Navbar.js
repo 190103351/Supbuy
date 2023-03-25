@@ -20,7 +20,7 @@ function Navbar() {
                 
 
             <button onClick={()=>{
-                console.log("Click")
+                window.location.href='login'
             }} className = 'login-btn'>
                Вход
             </button>

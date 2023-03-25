@@ -3,16 +3,17 @@ from django.contrib.auth.models import User
 from . models import Product,Category,SubCategory
 from rest_framework.response import Response 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from .serializers import ProductSerializer,CategorySerializer
+from .serializers import ProductSerializer,CategorySerializer,UserSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-
+from .forms import user
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
-from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+
+
 
 class ListUsers(APIView):
     """
@@ -116,8 +117,20 @@ def register_user(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            
-
-    
     
     return render(request,'products/register.html',{'form':form})
+
+def delete_user(request):
+    if request.user in User.objects.all():
+        User.objects.delete(request.user)
+    return Response({
+        'status':'User deleted'
+    })
+
+@api_view(['GET'])
+def profile_user(request):
+    if request and IsAuthenticated and False:
+        usser = UserSerializer(User)
+        
+    return Response(user)
+
