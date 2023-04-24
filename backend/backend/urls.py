@@ -15,13 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from products.views import ListUsers,CustomAuthToken,register_user
-# admin.autodiscover()
 
 urlpatterns = [
-    path('api/users/',ListUsers.as_view()),
-    path('api-token-auth',CustomAuthToken.as_view()),
-    path('admin/', admin.site.urls),
     
-    path('api/',include('products.urls'))
+    path('admin/', admin.site.urls),
+    path('api/',include('base.urls'))
+
 ]
