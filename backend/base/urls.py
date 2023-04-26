@@ -3,7 +3,7 @@ from . import views
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
-    TokenRefreshView,
+    TokenRefreshView
 )
 
 urlpatterns = [
@@ -13,7 +13,12 @@ urlpatterns = [
     path('categories/',views.get_by_category_name,name = 'categories'),
     path('add-product/',views.AddProductView.as_view(),name = 'add-product'),
     path('notifications-from/',views.get_notifications_from_user),
-    path('product/',views.get_product,name='get_product')
+    path('product/',views.get_product,name='get_product'),
+    path('user-info/<int:pk>',views.profile,name='profile'),
+    path('register/',views.register),
+    path('create-notification/',views.create_notification),
+    path('delete-notification/',views.delete_notification)
+
 
     
 ]

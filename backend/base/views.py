@@ -7,14 +7,20 @@ from rest_framework.decorators import api_view
 from django.db.models import Q 
 from . import serializers
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .forms import ProductForm
 from .models import Product,CustomUser,Category,Notification,Order,Agreement
+from django.contrib.auth.models import User
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = serializers.MyTokenObtainPairSerializer
 
-def log_out(request):
-    pass
+
+@api_view(['GET'])
+def profile(request,pk):
+    user = User.objects.get(id = pk)
+    user_info = serializers.UserSerializer(user).data
+    
+
+    return Response(user_info)
 
 
 
@@ -25,10 +31,13 @@ def all_categories(request):
     return Response(serial_categories.data)
 
 
+
 @api_view(['GET'])
 def get_by_category_name(request):
     category_name = request.GET.get('category_name') if request.GET.get('category_name') != None else ''
-    products = Product.objects.filter(category__name__icontains = category_name).all()
+    type_catalog = request.GET.get('type')
+    print(category_name,type_catalog)
+    products = Product.objects.filter(Q(category__name__icontains = category_name.capitalize()) & Q(owner__first_name__icontains = type_catalog.lower())).all()
     ser_products = serializers.ProductSerilizer(products,many=True)
     return Response(ser_products.data)
 
@@ -63,6 +72,21 @@ def delete_notification(request,pk):
     })
 
 
+@api_view(['POST'])
+def create_notification(request):
+    to_user = User.objects.get(id = request.data['to_user'])
+    from_user = User.objects.get(id = request.data['from_user'])
+    order = Order.objects.get(id = request.data['order'])
+
+    n_tf = Notification(from_user = from_user,to_user = to_user,order = order)
+
+    if n_tf:
+        n_tf.save()
+        return Response({'status':'succes'})
+    return Response({'status':'error'})
+
+
+
 
 @api_view(['GET'])
 def all_agreement(request):
@@ -76,18 +100,24 @@ class AddProductView(views.APIView):
 
     def post(self,request):
         product_ser = serializers.ProductSerilizer(data = request.data)
-
-        if Product.objects.filter(**request.data).exists():
-            raise serializers.ValidationError('This data already exists')
-        if product_ser.is_valid():
-            product_ser.save()
-        
-        
-        
+        owner = request.data['owner']
+        category = request.data['category']
+        request.data['owner'] = User.objects.get(id = owner)
+        request.data['category'] = Category.objects.get(id = category)
+        product = Product(**request.data)
+        if product:
+            product.save()
+        # if Product.objects.filter(**request.data).exists():
+        #     raise serializers.ValidationError('This data already exists')
+        # if product_ser.is_valid():
+        #     product_ser.save()
+            return Response({
+                "status":'saved'
+                }
+            )
         return Response({
-            "status":'saved'
-            }
-        )
+            "status":'error'
+        })
 
 
 
@@ -107,3 +137,19 @@ def current_user_orders(request):
     orders = Order.objects.filter(client__username=username).all()
     return Response(serializers.OrderSerializer(orders).data)
 
+
+
+@api_view(['POST'])
+def register(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    confirm_password = request.data.get('confirm_password')
+
+    if password == confirm_password:
+        user = User(username = username,password = password)
+        if user:
+            user.save()
+            return Response({'status':'succesfully registered!!'})
+        else:
+            return Response({'status':'User exist'})
+    
